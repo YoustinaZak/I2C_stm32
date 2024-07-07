@@ -53,6 +53,9 @@ default.size.stdout \
 OBJDUMP_LIST += \
 I2C_RTC.list \
 
+OBJCOPY_HEX += \
+I2C_RTC.hex \
+
 
 # All Target
 all: main-build
@@ -76,12 +79,17 @@ I2C_RTC.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+I2C_RTC.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "I2C_RTC.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) I2C_RTC.elf I2C_RTC.list I2C_RTC.map default.size.stdout
+	-$(RM) I2C_RTC.elf I2C_RTC.hex I2C_RTC.list I2C_RTC.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

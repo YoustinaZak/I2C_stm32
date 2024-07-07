@@ -13,8 +13,11 @@
 typedef struct {
 	uint8_t Buffer[8];                                    //slave address + data
 	uint8_t sec, min, hour;
-	uint8_t day, date, month, year;
+	uint8_t day, date, month;
+	uint16_t year;
 	uint8_t CH;//clock hold
+	uint8_t format:1;
+	uint8_t PM_AM:1;
 
 	I2C_HandleTypeDef *i2c_bus;
 } ds1307_t;

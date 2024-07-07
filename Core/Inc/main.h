@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../../Drivers/DS1307/ds1307.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
