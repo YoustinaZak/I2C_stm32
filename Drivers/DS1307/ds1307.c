@@ -40,10 +40,9 @@ static uint8_t dec_to_BCD(uint8_t num) {
 ds1307_stat_t DS1307_INIT(ds1307_t *clock, I2C_HandleTypeDef *i2c_bus) {
 	uint8_t stat = 1;
 	clock->i2c_bus = i2c_bus;
-	//uint8_t Data[1];
 
 	//enable oscillator
-	//Data[0]=0x00;
+
 	clock->Buffer[0] = 0x00;
 	stat &= I2c_write(clock->Buffer, 1, clock);
 	stat &= I2c_read(clock->Buffer, 1, clock);

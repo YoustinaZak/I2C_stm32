@@ -60,7 +60,11 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-ds1307_t RTC1;
+uint8_t info[50];
+ds1307_t RTC1 = {
+	.hour= 2, .min=17, .sec= 9, .day=1, .date=1, .month=1, .year=2000
+};
+
 
 /* USER CODE END 0 */
 
@@ -70,9 +74,7 @@ ds1307_t RTC1;
  */
 int main(void) {
 	/* USER CODE BEGIN 1 */
-	if(DS1307_INIT(&RTC1 ,&hi2c1)== DS1307_OK) {
-		HAL_UART_Transmit(&huart1,"ok its done",strlen("ok its done"),100);
-	}
+
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -96,12 +98,29 @@ int main(void) {
 	MX_I2C1_Init();
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
-
+	HAL_UART_Transmit(&huart1,"in \n",strlen("in \n\r"),100);
+		if(DS1307_INIT(&RTC1 ,&hi2c1)== DS1307_OK) {
+			HAL_UART_Transmit(&huart1,"ok its done \n\r",strlen("ok its done\n"),100);
+			DS1307_Set(&RTC1);
+		} else{
+			HAL_UART_Transmit(&huart1,"ok its not done \n\r",strlen("ok its not done\n"),100);
+		}
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
+		if(DS1307_Read(&RTC1)== DS1307_OK ){
+			uint8_t stat[15]="Clock: OK  ";
+			HAL_UART_Transmit(&huart1, stat, strlen(stat), 100);
+			sprintf(info, "%02d:%02d:%02d Day %02d %02d/%02d/%02d \n\r", RTC1.hour, RTC1.min, RTC1.sec, RTC1.day, RTC1.date, RTC1.month, RTC1.year);
+			HAL_UART_Transmit(&huart1, info, strlen(info), 100);
+			HAL_Delay(1000);
+		} else{
+			uint8_t error[] = "Clock: Error  \n\r";
+			HAL_UART_Transmit(&huart1, error, strlen(error), 100);
+		}
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

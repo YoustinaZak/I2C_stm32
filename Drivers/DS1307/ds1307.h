@@ -23,7 +23,8 @@ typedef struct {
 } ds1307_t;
 
 typedef enum {
-	DS1307_OK, DS1307_NOK
+	 DS1307_NOK,
+	 DS1307_OK
 } ds1307_stat_t;
 
 ds1307_stat_t DS1307_INIT(ds1307_t *clock, I2C_HandleTypeDef *i2c_bus);
