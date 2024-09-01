@@ -1,0 +1,2 @@
+../Core/Src/HW_interface.c:15:9:I2c_write	1
+../Core/Src/HW_interface.c:24:9:I2c_read	1

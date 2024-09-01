@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "HW_interface.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -62,7 +62,9 @@ static void MX_USART1_UART_Init(void);
 
 uint8_t info[50];
 ds1307_t RTC1 = {
-	.hour= 2, .min=17, .sec= 9, .day=1, .date=1, .month=1, .year=2000
+	.hour= 2, .min=17, .sec= 9, .day=1, .date=1, .month=1, .year=2000,
+	.HW_Interface.write = I2c_write,
+	.HW_Interface.write = I2c_read
 };
 
 
@@ -99,7 +101,7 @@ int main(void) {
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
 	HAL_UART_Transmit(&huart1,"in \n",strlen("in \n\r"),100);
-		if(DS1307_INIT(&RTC1 ,&hi2c1)== DS1307_OK) {
+		if(DS1307_INIT(&RTC1)== DS1307_OK) {
 			HAL_UART_Transmit(&huart1,"ok its done \n\r",strlen("ok its done\n"),100);
 			DS1307_Set(&RTC1);
 		} else{

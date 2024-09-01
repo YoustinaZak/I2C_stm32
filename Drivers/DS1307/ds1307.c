@@ -5,10 +5,10 @@
  *      Author: hp
  */
 #include "ds1307.h"
-#define dev_SLA       0b1101000
+
 #define start_address 0x00
 
-static uint8_t I2c_write(uint8_t *Data, uint8_t Len, ds1307_t *clock) { //address removed
+/*static uint8_t I2c_write(uint8_t *Data, uint8_t Len, ds1307_t *clock) { //address removed
 
 	HAL_StatusTypeDef ok = HAL_I2C_Master_Transmit(clock->i2c_bus, dev_SLA << 1,
 			Data, Len, 100); //sends write bit automatically
@@ -24,7 +24,7 @@ static uint8_t I2c_read(uint8_t *Data, uint8_t Len, ds1307_t *clock) { //address
 	return (ok == HAL_OK) ? 1 : 0;
 	//return __HAL_I2C_GET_FLAG(clock->i2c_bus, HAL_I2C_ERROR_AF) ? 0 : 1; // if ack fail it = true = return 0
 
-}
+}*/
 static uint8_t BCD_to_dec(uint8_t num) {
 
 	return (num >> 4) * 10 + (0xf & num);
@@ -37,15 +37,15 @@ static uint8_t dec_to_BCD(uint8_t num) {
 	return div << 4 | rem;
 }
 
-ds1307_stat_t DS1307_INIT(ds1307_t *clock, I2C_HandleTypeDef *i2c_bus) {
+ds1307_stat_t DS1307_INIT(ds1307_t *clock) {
 	uint8_t stat = 1;
-	clock->i2c_bus = i2c_bus;
+	//clock->i2c_bus = i2c_bus;
 
 	//enable oscillator
 
 	clock->Buffer[0] = 0x00;
-	stat &= I2c_write(clock->Buffer, 1, clock);
-	stat &= I2c_read(clock->Buffer, 1, clock);
+	stat = clock->HW_Interface.write(DS1307_SLA,clock->Buffer, 1);
+	stat = clock->HW_Interface.read(DS1307_SLA,clock->Buffer, 1);
 
 	if ((clock->Buffer[0]) & (1 << 7) == 0) {	// 1 1010101
 												// 1 0000000
@@ -54,7 +54,7 @@ ds1307_stat_t DS1307_INIT(ds1307_t *clock, I2C_HandleTypeDef *i2c_bus) {
 	} else {
 		clock->Buffer[0] = 0x00;  //reg base address
 		clock->Buffer[1] = 0;   //clock hold bit
-		stat &= I2c_write(clock->Buffer, 2, clock);
+		stat = clock->HW_Interface.write(DS1307_SLA,clock->Buffer, 2);
 	}
 
 	if (stat == 1) {
@@ -81,7 +81,7 @@ ds1307_stat_t DS1307_Set(ds1307_t *clock) {
 	clock->Buffer[6] = dec_to_BCD(clock->month) & 0x1f;
 	clock->Buffer[7] = dec_to_BCD(clock->year - 2000);
 
-	if (I2c_write(clock->Buffer, 8, clock) == 1) {
+	if (clock->HW_Interface.write(DS1307_SLA,clock->Buffer, 8) == 1) {
 		return DS1307_OK;
 	} else {
 		return DS1307_NOK;
@@ -90,9 +90,9 @@ ds1307_stat_t DS1307_Set(ds1307_t *clock) {
 ds1307_stat_t DS1307_Read(ds1307_t *clock) {
 	uint8_t stat = 1;
 	clock->Buffer[0] = start_address;
-	if (I2c_write(clock->Buffer, 1, clock) == 1) {
+	if (clock->HW_Interface.write(DS1307_SLA,clock->Buffer, 1) == 1) {
 
-		if (I2c_read(clock->Buffer, 7, clock) == 1) {
+		if (clock->HW_Interface.read(DS1307_SLA,clock->Buffer, 7) == 1) {
 			clock->sec = BCD_to_dec(clock->Buffer[0] & (0x7f));
 			clock->min = BCD_to_dec(clock->Buffer[1]);
 			clock->format = (clock->Buffer[2] & 0b01000000) >> 6;
